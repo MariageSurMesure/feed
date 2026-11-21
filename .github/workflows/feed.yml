@@ -1,0 +1,28 @@
+name: Mise à jour du feed
+on:
+  schedule: [{cron: "*/15 * * * *"}]
+  workflow_dispatch: {}
+  push: {branches: [main]}
+permissions: {contents: write, pages: write, id-token: write}
+concurrency: {group: feed, cancel-in-progress: true}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.deploy.outputs.page_url }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pillow
+      - run: python build.py
+        env:
+          NOTION_TOKEN: "${{ secrets.NOTION_TOKEN }}"
+          IG_TOKEN: "${{ secrets.IG_TOKEN }}"
+          IG_USER_ID: "${{ secrets.IG_USER_ID }}"
+      - run: |
+          git config user.name "feed-bot"; git config user.email "feed-bot@users.noreply.github.com"
+          git add -A && (git commit -m "Mise à jour du feed" && git push) || echo "rien de neuf"
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: .}
+      - id: deploy
+        uses: actions/deploy-pages@v4
