@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feed – Mariage Sur Mesure</title>
+<style>html,body{margin:0;background:transparent}body{padding:8px}</style></head>
+<body><div id="feed"></div>
+<script src="widget.js"></script>
+<script>
+fetch('feed.json?'+Date.now()).then(r=>r.json()).then(feed=>{
+  let net='instagram'; try{net=localStorage.getItem('msm-net')||net}catch(e){}
+  if(!feed.posts[net]) net='instagram';
+  MSMWidget.render(document.getElementById('feed'),feed,net);
+});
+</script></body></html>
