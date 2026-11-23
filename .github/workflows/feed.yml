@@ -1,6 +1,6 @@
 name: Mise à jour du feed
 on:
-  schedule: [{cron: "*/15 * * * *"}]
+  schedule: [{cron: "17 5 * * *"}]
   workflow_dispatch: {}
   push: {branches: [main]}
 permissions: {contents: write, pages: write, id-token: write}
