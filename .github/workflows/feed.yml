@@ -8,7 +8,6 @@ concurrency: {group: feed, cancel-in-progress: true}
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: {name: github-pages, url: "${{ steps.deploy.outputs.page_url }}"}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,5 +23,17 @@ jobs:
           git add -A && (git commit -m "Mise à jour du feed" && git push) || echo "rien de neuf"
       - uses: actions/upload-pages-artifact@v3
         with: {path: .}
-      - id: deploy
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.try1.outputs.page_url || steps.try2.outputs.page_url }}"}
+    steps:
+      - run: sleep 20
+      - id: try1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - if: steps.try1.outcome == 'failure'
+        run: sleep 90
+      - id: try2
+        if: steps.try1.outcome == 'failure'
         uses: actions/deploy-pages@v4
